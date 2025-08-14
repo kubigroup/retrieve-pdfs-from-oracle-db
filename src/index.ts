@@ -1,7 +1,6 @@
 import { PdfRetriever } from './pdf-retriever.js';
 
 async function main(): Promise<void> {
-  const suppliers: string[] = ['1Password', 'AWS', 'Adobe', 'AfiTech', 'AjTEK', 'Anthropic', 'Carmigraf', 'ClickUP', 'Docker', 'EasyVista', 'GitHub', 'Microsoft', 'Mitsogo', 'OAPPS', 'OpenAI', 'OpenVPN', 'PDQ', 'SPS', 'Texter', 'VisualD.G', 'Zendesk', 'yubico'];
   // Example configuration - modify these values according to your database schema
   const CONFIG = {
     tableName: 'INVOICE_ATTACHMENTS',           // Replace with your table name
