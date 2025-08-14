@@ -101,16 +101,19 @@ export class DatabaseService {
     try {
       connection = await this.pool.getConnection();
       
-      // Enhanced query to get supplier code, month, and supplier invoice number
-      let query = `SELECT ia.${idColumnName}, ia.${blobColumnName}, s.CODE as supplier_code, 
-                          EXTRACT(MONTH FROM i.INVOICE_DATE) as invoice_month, 
-                          i.SUPPLIER_IV_NUM as supplier_invoice_num
-                   FROM ${tableName} ia
-                   JOIN INVOICES i ON ia.INVOICE_ID = i.ID
-                   JOIN SUPPLIERS s ON i.SUPPLIER_ID = s.ID`;
-      if (whereClause) {
-        query += ` WHERE ${whereClause}`;
-      }
+      // Query to get only one row per supplier using ROW_NUMBER()
+      let query = `SELECT * FROM (
+        SELECT * FROM (
+          SELECT ia.${idColumnName}, ia.${blobColumnName}, s.CODE as supplier_code,
+                 EXTRACT(MONTH FROM i.INVOICE_DATE) as invoice_month,
+                 i.SUPPLIER_IV_NUM as supplier_invoice_num,
+                 ROW_NUMBER() OVER (PARTITION BY s.CODE ORDER BY i.INVOICE_DATE DESC) as rn
+          FROM ${tableName} ia
+          JOIN INVOICES i ON ia.INVOICE_ID = i.ID
+          JOIN SUPPLIERS s ON i.SUPPLIER_ID = s.ID
+          ${whereClause ? `WHERE ${whereClause}` : ''}
+        ) WHERE rn = 1
+      )`;
 
       console.log(`Executing query: ${query}`);
       

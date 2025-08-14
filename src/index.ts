@@ -7,7 +7,7 @@ async function main(): Promise<void> {
     tableName: 'INVOICE_ATTACHMENTS',           // Replace with your table name
     blobColumnName: 'BLOB_CONTENT',     // Replace with your BLOB column name
     idColumnName: 'ID',                     // Replace with your ID column name (optional)
-    whereClause: `s.CODE IN (${suppliers.map(s => `'${s}'`).join(', ')}) AND EXTRACT(YEAR FROM i.INVOICE_DATE) = 2025`,                 // Filter by supplier codes and year 2025
+    whereClause: `EXTRACT(YEAR FROM i.INVOICE_DATE) = 2025`,                 // Filter by supplier codes and year 2025
     outputFilenamePrefix: 'extracted_pdf'   // Prefix for saved PDF files (fallback only)
   };
 
