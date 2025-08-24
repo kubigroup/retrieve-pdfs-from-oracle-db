@@ -1,26 +1,34 @@
 import { PdfRetriever } from './pdf-retriever.js';
-
+import fs from 'fs';
 async function main(): Promise<void> {
-  // Example configuration - modify these values according to your database schema
-  const CONFIG = {
-    tableName: 'INVOICE_ATTACHMENTS',           // Replace with your table name
-    blobColumnName: 'BLOB_CONTENT',     // Replace with your BLOB column name
-    idColumnName: 'ID',                     // Replace with your ID column name (optional)
-    whereClause: `EXTRACT(YEAR FROM i.INVOICE_DATE) = 2025`,                 // Filter by supplier codes and year 2025
-    outputFilenamePrefix: 'extracted_pdf'   // Prefix for saved PDF files (fallback only)
-  };
-
   const retriever = new PdfRetriever();
 
   try {
     console.log('🚀 Starting PDF retrieval from Oracle database...');
-
-    // Initialize database connection
     await retriever.initialize();
     console.log('✅ Database connection established');
 
-    // Retrieve and save PDFs
-    const savedFiles = await retriever.retrievePdfs(CONFIG);
+    // Get the JSON file path from CLI
+    const invoiceCodesFilePath = process.argv[2];
+    if (!invoiceCodesFilePath) {
+      console.error('Please provide a path to the invoice codes JSON file as the first argument.');
+      process.exit(1);
+    }
+
+
+    let invoiceCodes: string[] = [];
+    try {
+      const fileContent = fs.readFileSync(invoiceCodesFilePath, 'utf-8');
+      invoiceCodes = JSON.parse(fileContent);
+      if (!Array.isArray(invoiceCodes) || !invoiceCodes.every(code => typeof code === 'string')) {
+        throw new Error('JSON file must contain an array of strings.');
+      }
+    } catch (err) {
+      console.error('Failed to read or parse the invoice codes JSON file:', err);
+      process.exit(1);
+    }
+
+    const savedFiles = await retriever.retrievePdfs(invoiceCodes);
 
     if (savedFiles.length > 0) {
       console.log(`✅ Successfully saved ${savedFiles.length} PDF file(s):`);

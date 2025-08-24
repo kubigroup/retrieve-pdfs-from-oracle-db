@@ -13,6 +13,29 @@
 			"problemMatcher": [
 				"$tsc"
 			]
+		},
+		{
+			"label": "Run Project",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"dist/index.js",
+				"input/invoices.json"
+			],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build and Run Project",
+			"dependsOn": [
+				"Build TypeScript",
+				"Run Project"
+			],
+			"dependsOrder": "sequence",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
