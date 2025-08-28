@@ -20,7 +20,8 @@
 			"command": "node",
 			"args": [
 				"dist/index.js",
-				"input/invoices.json"
+				"input/invoices.json",
+				"Invoice"
 			],
 			"group": "test",
 			"problemMatcher": []

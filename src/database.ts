@@ -30,7 +30,7 @@ export class DatabaseService {
     }
   }
 
-  async getPdfBlobWithMetadata(invoiceCodes: string[]): Promise<
+  async getPdfBlobWithMetadata(invoiceCodes: string[], invoiceAttachmentDescription?: string): Promise<
     Array<{
       supplierCode: string;
       month: number;
@@ -47,7 +47,7 @@ export class DatabaseService {
       connection = await this.pool.getConnection();
 
       const codesList = invoiceCodes.map(code => `'${code.replace(/'/g, "''")}'`).join(', ');
-      const query = `
+      let query = `
         select s.CODE as supplierCode, 
         EXTRACT(MONTH FROM i.INVOICE_DATE) as invoiceMonth, 
           i.SUPPLIER_IV_NUM as supplierInvoiceNumber, 
@@ -57,6 +57,9 @@ export class DatabaseService {
           JOIN SUPPLIERS s ON i.SUPPLIER_ID = s.ID
         where i.SUPPLIER_IV_NUM in (${codesList})
       `;
+      if (invoiceAttachmentDescription) {
+        query += ` and ia.DESCRIPTION = '${invoiceAttachmentDescription.replace(/'/g, "''")}'`;
+      }
 
       console.log(`Executing query:\n ${query}`);
 

@@ -1,6 +1,8 @@
 import { PdfRetriever } from './pdf-retriever.js';
 import fs from 'fs';
 async function main(): Promise<void> {
+  const invoiceCodesFilePath = process.argv[2];
+  const invoiceAttachmentDescription = process.argv[3];
   const retriever = new PdfRetriever();
 
   try {
@@ -9,12 +11,10 @@ async function main(): Promise<void> {
     console.log('✅ Database connection established');
 
     // Get the JSON file path from CLI
-    const invoiceCodesFilePath = process.argv[2];
     if (!invoiceCodesFilePath) {
       console.error('Please provide a path to the invoice codes JSON file as the first argument.');
       process.exit(1);
     }
-
 
     let invoiceCodes: string[] = [];
     try {
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    const savedFiles = await retriever.retrievePdfs(invoiceCodes);
+  const savedFiles = await retriever.retrievePdfs(invoiceCodes, invoiceAttachmentDescription);
 
     if (savedFiles.length > 0) {
       console.log(`✅ Successfully saved ${savedFiles.length} PDF file(s):`);

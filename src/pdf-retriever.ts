@@ -19,11 +19,11 @@ export class PdfRetriever {
     await this.dbService.close();
   }
 
-  async retrievePdfs(invoiceCodes: string[]): Promise<string[]> {
+  async retrievePdfs(invoiceCodes: string[], invoiceAttachmentDescription?: string): Promise<string[]> {
     try {
       console.log(`Starting PDF retrieval from INVOICE_ATTACHMENTS.BLOB_CONTENT`);
 
-      const invoices = await this.dbService.getPdfBlobWithMetadata(invoiceCodes);
+      const invoices = await this.dbService.getPdfBlobWithMetadata(invoiceCodes, invoiceAttachmentDescription);
 
       if (invoices.length === 0) {
         console.log('No PDF data found');
