@@ -33,12 +33,12 @@ export class PdfRetriever {
       console.log(`Found ${invoices.length} PDF(s) to save`);
 
       const savedFiles: string[] = [];
-      for (const { supplierCode, month, supplierInvoiceNumber, blobContent } of invoices) {
+      for (const { supplierCode, year, month, supplierInvoiceNumber, blobContent } of invoices) {
         // Create filename in format: <supplier_code-month_number-SUPPLIER_IV_NUM>
         let filename: string;
         // Clean supplier invoice number (remove special characters that aren't file-safe)
         const cleanSupplierInvoiceNumber = supplierInvoiceNumber.replace(/[<>:"/\\|?*]/g, '_');
-        filename = `${supplierCode}-${month}-${cleanSupplierInvoiceNumber}-${new Date().valueOf().toString(16)}`;
+        filename = `${supplierCode}-${year}_${month}-${cleanSupplierInvoiceNumber}-${new Date().valueOf().toString(16)}`;
 
         if (this.pdfService.validatePdfBuffer(blobContent)) {
           const filePath = await this.pdfService.savePdfBuffer(blobContent, filename);

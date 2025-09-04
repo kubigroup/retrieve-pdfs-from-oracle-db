@@ -33,6 +33,7 @@ export class DatabaseService {
   async getPdfBlobWithMetadata(invoiceCodes: string[], invoiceAttachmentDescription?: string): Promise<
     Array<{
       supplierCode: string;
+      year: number;
       month: number;
       supplierInvoiceNumber: string;
       blobContent: Buffer;
@@ -49,6 +50,7 @@ export class DatabaseService {
       const codesList = invoiceCodes.map(code => `'${code.replace(/'/g, "''")}'`).join(', ');
       let query = `
         select s.CODE as supplierCode, 
+        EXTRACT(YEAR FROM i.INVOICE_DATE) as invoiceYear, 
         EXTRACT(MONTH FROM i.INVOICE_DATE) as invoiceMonth, 
           i.SUPPLIER_IV_NUM as supplierInvoiceNumber, 
           ia.BLOB_CONTENT as blobContent
@@ -74,6 +76,7 @@ export class DatabaseService {
 
       const invoices: Array<{
         supplierCode: string;
+        year: number;
         month: number;
         supplierInvoiceNumber: string;
         blobContent: Buffer;
@@ -83,14 +86,16 @@ export class DatabaseService {
         const rowArray = row as any[];
         const supplierCode = rowArray[0] as string;
         const month = rowArray[1] as number;
-        const supplierInvoiceNumber = rowArray[2] as string;
-        const blobData = rowArray[3] as oracledb.Lob;
+        const year = rowArray[2] as number;
+        const supplierInvoiceNumber = rowArray[3] as string;
+        const blobData = rowArray[4] as oracledb.Lob;
 
         if (blobData && typeof blobData.getData === "function") {
           const buffer = await blobData.getData();
           if (Buffer.isBuffer(buffer)) {
             invoices.push({
               supplierCode,
+              year,
               month,
               blobContent: buffer,
               supplierInvoiceNumber: supplierInvoiceNumber,
@@ -99,6 +104,7 @@ export class DatabaseService {
         } else if (Buffer.isBuffer(blobData)) {
           invoices.push({
             supplierCode,
+            year,
             month,
             supplierInvoiceNumber: supplierInvoiceNumber,
             blobContent: blobData,
